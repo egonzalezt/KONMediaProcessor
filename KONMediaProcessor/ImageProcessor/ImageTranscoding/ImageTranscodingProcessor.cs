@@ -7,12 +7,12 @@ using FFmpegExecutor;
 using FileValidator;
 using System.Text;
 
-public class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidator fileValidator) : IImageTranscodingProcessor
+internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidator fileValidator) : IImageTranscodingProcessor
 {
     private readonly IFFmpegExecutor _executor = executor;
     private readonly IFileValidator _fileValidator = fileValidator;
 
-    public void GenerateImage(List<TextData> textDataList, string fontPath, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, bool overrideFile = false)
+    public void GenerateImage(List<TextData> textDataList, string fontPath, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         _fileValidator.EnsureDirectoryPathExists(outputFilePath);
         if (!overrideFile && _fileValidator.FileExists(outputFilePath))
@@ -28,10 +28,10 @@ public class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidator 
         }
         command = command.TrimEnd(',') + $"\" -frames:v 1 {outputFilePath}";
         command += overrideFile ? " -y" : " -n";
-        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command);
+        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command, cancellationToken);
     }
 
-    public void CombineImages(List<ImageData> imageDataList, int width, int height, string outputFilePath, string backgroundColor, bool overrideFile = false)
+    public void CombineImages(List<ImageData> imageDataList, int width, int height, string outputFilePath, string backgroundColor, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         var inputs = imageDataList.Select(i => i.Path).ToArray();
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
@@ -68,26 +68,26 @@ public class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidator 
         commandBuilder.AppendFormat("-frames:v 1 \"{0}\"", outputFilePath);
         string command = commandBuilder.ToString();
 
-        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command);
+        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command, cancellationToken);
     }
 
-    public void ResizeImage(string inputFilePath, int newWidth, int newHeight, string outputFilePath, bool overrideFile = false)
+    public void ResizeImage(string inputFilePath, int newWidth, int newHeight, string outputFilePath, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
         var command = $"-i \"{inputFilePath}\" -vf scale={newWidth}:{newHeight} -frames:v 1 \"{outputFilePath}\"";
         command += overrideFile ? " -y" : " -n";
-        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command);
+        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command, cancellationToken);
     }
 
-    public void ConvertImageToVideo(string inputFilePath, int durationInSeconds, int width, int height, string outputFilePath, bool overrideFile = false)
+    public void ConvertImageToVideo(string inputFilePath, int durationInSeconds, int width, int height, string outputFilePath, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
         var command = $"-loop 1 -i \"{inputFilePath}\" -vf \"scale={width}:{height}\" -t {durationInSeconds} -c:v libx264 -pix_fmt yuva420p \"{outputFilePath}\"";
         command += overrideFile ? " -y" : " -n";
-        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command);
+        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command, cancellationToken);
     }
 
-    public void ConvertImageToVideo(string inputFilePath, int durationInSeconds, string outputFilePath, bool overrideFile = false)
+    public void ConvertImageToVideo(string inputFilePath, int durationInSeconds, string outputFilePath, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         _fileValidator.ValidatePaths(new[] { inputFilePath }, outputFilePath, overrideFile);
         var commandBuilder = new StringBuilder();
@@ -98,7 +98,7 @@ public class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidator 
         commandBuilder.AppendFormat("-loop 1 -i \"{0}\" -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -t {1} -c:v libx264 -pix_fmt yuv420p \"{2}\"",
             inputFilePath, durationInSeconds, outputFilePath);
         string command = commandBuilder.ToString();
-        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command);
+        _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), command, cancellationToken);
     }
 
 }

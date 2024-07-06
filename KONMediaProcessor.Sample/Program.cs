@@ -21,6 +21,10 @@ imageTranscodingSamples.ImageToVideo();
 var videoInfoSamples = serviceProvider.GetRequiredService<VideoInfoSamples>();
 videoInfoSamples.GetVideoInformation();
 
+var videoTranscodingSamples = serviceProvider.GetRequiredService<VideoTranscodingSamples>();
+videoTranscodingSamples.TranscodeVideo();
+videoTranscodingSamples.ChangeVideoResolution();
+
 void ConfigureServices(ServiceCollection services)
 {
 
@@ -33,5 +37,6 @@ void ConfigureServices(ServiceCollection services)
     services
         .AddSingleton<ImageInfoSamples>()
         .AddSingleton<ImageTranscodingSamples>()
-        .AddSingleton<VideoInfoSamples>();
+        .AddSingleton<VideoInfoSamples>()
+        .AddSingleton<VideoTranscodingSamples>();
 }

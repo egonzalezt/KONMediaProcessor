@@ -8,19 +8,19 @@ using Domain.Shared;
 using VideoProcessor.VideoInfo;
 using Domain.VideoInfo;
 
-public class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoProcessor videoInfoProcessor, IFileValidator fileValidator) : IVideoTranscodingProcessor
+internal class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoProcessor videoInfoProcessor, IFileValidator fileValidator) : IVideoTranscodingProcessor
 {
     private readonly IFFmpegExecutor _executor = executor;
     private readonly IFileValidator _fileValidator = fileValidator;
     private readonly IVideoInfoProcessor _videoInfoProcessor = videoInfoProcessor;
     
-    public void TranscodeVideo(string inputFilePath, string outputFilePath, VideoCodec videoEncoder = VideoCodec.H264, AudioCodec audioEncoder = AudioCodec.AAC, int audioBitrate = 128, bool overrideFile = false)
+    public void TranscodeVideo(string inputFilePath, string outputFilePath, VideoCodec videoEncoder = VideoCodec.H264, AudioCodec audioEncoder = AudioCodec.AAC, int audioBitrate = 128, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         var inputs = new string[] { inputFilePath };
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         string arguments = $"-i \"{inputFilePath}\" -c:v {videoEncoder.ToString().ToLower()} -c:a {audioEncoder.ToString().ToLower()} -b:a {audioBitrate}k \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        string result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments);
+        string result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
 
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
@@ -28,13 +28,13 @@ public class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoProce
         }
     }
 
-    public void ChangeVideoResolution(string inputFilePath, string outputFilePath, int newWidth, int newHeight, bool overrideFile = false)
+    public void ChangeVideoResolution(string inputFilePath, string outputFilePath, int newWidth, int newHeight, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         var inputs = new string[] { inputFilePath };
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         var arguments = $"-i \"{inputFilePath}\" -vf scale={newWidth}:{newHeight} \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments);
+        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
 
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
@@ -42,7 +42,7 @@ public class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoProce
         }
     }
 
-    public void SetVideoFrameRate(string inputFilePath, string outputFilePath, int frameRate, bool overrideFile = false)
+    public void SetVideoFrameRate(string inputFilePath, string outputFilePath, int frameRate, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         if (frameRate <= 0)
         {
@@ -53,7 +53,7 @@ public class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoProce
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         var arguments = $"-i \"{inputFilePath}\" -r {frameRate} \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments);
+        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
 
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
@@ -61,7 +61,7 @@ public class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoProce
         }
     }
 
-    public void ConcatenateVideos(string[] inputFilePaths, string outputFilePath, bool includeAudio = true, bool overrideFile = false)
+    public void ConcatenateVideos(string[] inputFilePaths, string outputFilePath, bool includeAudio = true, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         if (inputFilePaths == null || inputFilePaths.Length == 0)
         {
@@ -116,20 +116,20 @@ public class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoProce
         arguments += $" \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
 
-        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments);
+        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
             throw new FFmpegException($"Error concatenating videos: {result}");
         }
     }
 
-    public void ChangeAspectRatio(string inputFilePath, string outputFilePath, AspectRatio aspectRatio, bool overrideFile = false)
+    public void ChangeAspectRatio(string inputFilePath, string outputFilePath, AspectRatio aspectRatio, bool overrideFile = false, CancellationToken cancellationToken = default)
     {
         var inputs = new string[] { inputFilePath };
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         var arguments = $"-i \"{inputFilePath}\" -vf \"scale=iw:ih,setsar={aspectRatio}\" -c:a copy \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments);
+        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
             throw new FFmpegException($"Error concatenating videos: {result}");

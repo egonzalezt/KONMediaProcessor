@@ -8,12 +8,12 @@ using FFmpegExecutor;
 using FileValidator;
 using System.Text.Json;
 
-public class ImageInfoProcessor(IFFmpegExecutor executor, IFileValidator fileValidator) : IImageInfoProcessor
+internal class ImageInfoProcessor(IFFmpegExecutor executor, IFileValidator fileValidator) : IImageInfoProcessor
 {
     private readonly IFFmpegExecutor _executor = executor;
     private readonly IFileValidator _fileValidator = fileValidator;
 
-    public ImageInfo GetImageInfo(string inputFile)
+    public ImageInfo GetImageInfo(string inputFile, CancellationToken cancellationToken = default)
     {
         if (!_fileValidator.FileExists(inputFile))
         {
@@ -21,7 +21,7 @@ public class ImageInfoProcessor(IFFmpegExecutor executor, IFileValidator fileVal
         }
 
         string arguments = $"-v error -select_streams v:0 -show_entries stream=width,height,pix_fmt -of json \"{inputFile}\"";
-        string jsonResult = _executor.ExecuteCommand(FFmpegConfig.GetFFprobeLocation(), arguments);
+        string jsonResult = _executor.ExecuteCommand(FFmpegConfig.GetFFprobeLocation(), arguments, cancellationToken);
 
         var ffprobeResult = JsonSerializer.Deserialize<FFprobeImageResultDto>(jsonResult) ?? throw new FFmpegException("FFmpeg does not return any result");
         var streamInfo = ffprobeResult.Streams.FirstOrDefault() ?? throw new FFmpegException("No image data was found in the file provided.");
