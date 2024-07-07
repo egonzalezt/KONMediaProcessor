@@ -18,12 +18,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Examples\Multimedia\" />
     <Folder Include="Examples\Fonts\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Examples\Fonts\Arial.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Examples\Multimedia\744946__crackerjack56__downed.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Examples\Multimedia\745016__solarpsychedelic__peaceful-chords.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Examples\Multimedia\FFmpeg_Logo_new.png">

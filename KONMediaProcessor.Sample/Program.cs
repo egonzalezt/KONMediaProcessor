@@ -24,8 +24,22 @@ videoInfoSamples.GetVideoInformation();
 var videoTranscodingSamples = serviceProvider.GetRequiredService<VideoTranscodingSamples>();
 videoTranscodingSamples.TranscodeVideo();
 videoTranscodingSamples.ChangeVideoResolution();
+videoTranscodingSamples.SetVideoFrameRate();
+videoTranscodingSamples.ConcatenateVideos();
+videoTranscodingSamples.ChangeAspectRatio();
 
-void ConfigureServices(ServiceCollection services)
+var audioInfoSamples = serviceProvider.GetRequiredService<AudioInfoSamples>();
+audioInfoSamples.GetAudioInfo();
+audioInfoSamples.GetAudioInfoFromVideo();
+
+
+var audioTranscodingSamples = serviceProvider.GetRequiredService<AudioTranscodingSamples>();
+audioTranscodingSamples.TranscodeAudio();
+audioTranscodingSamples.ChangeBitRate();
+audioTranscodingSamples.ChangeChannels();
+audioTranscodingSamples.ConvertAudioFormat();
+
+static void ConfigureServices(ServiceCollection services)
 {
 
     services.AddLogging(configure =>
@@ -38,5 +52,7 @@ void ConfigureServices(ServiceCollection services)
         .AddSingleton<ImageInfoSamples>()
         .AddSingleton<ImageTranscodingSamples>()
         .AddSingleton<VideoInfoSamples>()
-        .AddSingleton<VideoTranscodingSamples>();
+        .AddSingleton<VideoTranscodingSamples>()
+        .AddSingleton<AudioInfoSamples>()
+        .AddSingleton<AudioTranscodingSamples>();
 }

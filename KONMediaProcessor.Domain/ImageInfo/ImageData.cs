@@ -2,7 +2,7 @@
 
 public class ImageData
 {
-    public string Path { get; set; }
-    public int X { get; set; }
-    public int Y { get; set; }
+    public string Path { get; init; }
+    public int X { get; init; }
+    public int Y { get; init; }
 }

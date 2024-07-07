@@ -2,7 +2,7 @@
 
 public class ImageInfo
 {
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public string Format { get; set; }
+    public int Width { get; init; }
+    public int Height { get; init; }
+    public string Format { get; init; }
 }

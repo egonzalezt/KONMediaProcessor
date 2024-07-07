@@ -2,9 +2,9 @@
 
 public class VideoInfo
 {
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public double FrameRate { get; set; }
+    public int Width { get; init; }
+    public int Height { get; init; }
+    public double FrameRate { get; init; }
 
     public override string ToString()
     {

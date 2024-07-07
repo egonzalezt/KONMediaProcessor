@@ -1,6 +1,8 @@
 ﻿namespace KONMediaProcessor.FFmpegExecutor;
 
-using KONMediaProcessor.Domain.Exceptions;
+using Config;
+using Domain.Exceptions;
+using Domain.Shared;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -19,16 +21,27 @@ internal class FFmpegExecutor : IFFmpegExecutor
         Console.CancelKeyPress += OnCancelKeyPress;
     }
 
-    public string ExecuteCommand(string commandPath, string arguments, CancellationToken cancellationToken = default)
+    public string ExecuteCommand(SupportedExecutors executor, string arguments, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Starting FFmpeg");
+
+        if (string.IsNullOrEmpty(arguments))
+        {
+            throw new EmptyCommandException("Command arguments cannot be null");
+        }
+
         try
         {
             var outputBuilder = new StringBuilder();
+            var executorPath = executor == SupportedExecutors.ffmpeg ? FFmpegConfig.GetFFmpegLocation() : FFmpegConfig.GetFFprobeLocation();
+            if (string.IsNullOrEmpty(arguments))
+            {
+                throw new EmptyCommandException("Command arguments cannot be null");
+            }
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = commandPath,
+                FileName = executorPath,
                 Arguments = arguments,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -122,7 +135,7 @@ internal class FFmpegExecutor : IFFmpegExecutor
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error killing process {ProcessName}: {ErrorMessage}", process.ProcessName, ex.Message);
+                _logger.LogDebug(ex, "Error killing process {ProcessName}: {ErrorMessage}", process.ProcessName, ex.Message);
             }
         }
 

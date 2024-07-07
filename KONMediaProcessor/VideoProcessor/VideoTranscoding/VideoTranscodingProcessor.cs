@@ -1,6 +1,5 @@
 ﻿namespace KONMediaProcessor.VideoProcessor.VideoTranscoding;
 
-using Config;
 using Domain.Exceptions;
 using FFmpegExecutor;
 using FileValidator;
@@ -20,7 +19,7 @@ internal class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoPro
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         string arguments = $"-i \"{inputFilePath}\" -c:v {videoEncoder.ToString().ToLower()} -c:a {audioEncoder.ToString().ToLower()} -b:a {audioBitrate}k \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        string result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
+        string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
 
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
@@ -34,7 +33,7 @@ internal class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoPro
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         var arguments = $"-i \"{inputFilePath}\" -vf scale={newWidth}:{newHeight} \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
+        var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
 
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
@@ -53,7 +52,7 @@ internal class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoPro
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         var arguments = $"-i \"{inputFilePath}\" -r {frameRate} \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
+        var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
 
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
@@ -116,7 +115,7 @@ internal class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoPro
         arguments += $" \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
 
-        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
+        var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
             throw new FFmpegException($"Error concatenating videos: {result}");
@@ -129,7 +128,7 @@ internal class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoPro
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         var arguments = $"-i \"{inputFilePath}\" -vf \"scale=iw:ih,setsar={aspectRatio}\" -c:a copy \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        var result = _executor.ExecuteCommand(FFmpegConfig.GetFFmpegLocation(), arguments, cancellationToken);
+        var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
             throw new FFmpegException($"Error concatenating videos: {result}");

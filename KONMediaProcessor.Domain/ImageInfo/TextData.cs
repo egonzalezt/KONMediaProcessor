@@ -2,7 +2,7 @@
 
 public class TextData
 {
-    public int X { get; set; }
-    public int Y { get; set; }
-    public string Text { get; set; }
+    public int X { get; init; }
+    public int Y { get; init; }
+    public string Text { get; init; }
 }

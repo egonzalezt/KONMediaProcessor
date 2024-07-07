@@ -1,9 +1,9 @@
 ﻿namespace KONMediaProcessor.VideoProcessor.VideoInfo;
 
-using Config;
 using Domain.VideoInfo;
 using Domain.VideoInfo.Dtos;
 using Domain.Exceptions;
+using Domain.Shared;
 using FFmpegExecutor;
 using System.Linq;
 using System.Text.Json;
@@ -22,7 +22,7 @@ internal class VideoInfoProcessor(IFFmpegExecutor executor, IFileValidator fileV
         }
 
         string arguments = $"-v error -select_streams v:0 -show_entries stream=width,height,avg_frame_rate -of json \"{inputFile}\"";
-        string jsonResult = _executor.ExecuteCommand(FFmpegConfig.GetFFprobeLocation(), arguments, cancellationToken);
+        string jsonResult = _executor.ExecuteCommand(SupportedExecutors.ffprobe, arguments, cancellationToken);
 
         var ffprobeResult = JsonSerializer.Deserialize<FFprobeResultDto>(jsonResult) ?? throw new FFmpegException("FFmpeg does not return any result");
         var streamInfo = ffprobeResult.Streams.FirstOrDefault() ?? throw new FFmpegException("No video data was found in the file provided.");

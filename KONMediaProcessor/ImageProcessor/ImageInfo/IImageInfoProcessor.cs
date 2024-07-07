@@ -2,7 +2,6 @@
 
 using Domain.ImageInfo;
 
-
 /// <summary>
 /// Provides methods to retrieve information about images.
 /// </summary>
