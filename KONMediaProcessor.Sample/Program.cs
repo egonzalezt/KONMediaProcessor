@@ -13,6 +13,7 @@ var imageInfoSamples = serviceProvider.GetRequiredService<ImageInfoSamples>();
 imageInfoSamples.GetImageInformation();
 
 var imageTranscodingSamples = serviceProvider.GetRequiredService<ImageTranscodingSamples>();
+imageTranscodingSamples.ImageAsBase64();
 imageTranscodingSamples.CreateImage();
 imageTranscodingSamples.JoinImages();
 imageTranscodingSamples.ResizeImage();

@@ -13,7 +13,7 @@ internal class AudioInfoProcessor(IFFmpegExecutor executor, IFileValidator fileV
     private readonly IFFmpegExecutor _executor = executor;
     private readonly IFileValidator _fileValidator = fileValidator;
 
-    public AudioInfo GetAudioInfo(string inputFile, CancellationToken cancellationToken = default)
+    public AudioInfo GetAudioInfo(string inputFile)
     {
         if (!_fileValidator.FileExists(inputFile))
         {
@@ -21,7 +21,7 @@ internal class AudioInfoProcessor(IFFmpegExecutor executor, IFileValidator fileV
         }
 
         string arguments = $"-v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of json \"{inputFile}\"";
-        string jsonResult = _executor.ExecuteCommand(SupportedExecutors.ffprobe, arguments, cancellationToken);
+        string jsonResult = _executor.ExecuteCommand(SupportedExecutors.ffprobe, arguments);
 
         var ffprobeResult = JsonSerializer.Deserialize<FFprobeAudioResultDto>(jsonResult);
 

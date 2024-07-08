@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Text;
-using System.Threading;
 
 internal class FFmpegExecutor : IFFmpegExecutor
 {
@@ -21,7 +20,7 @@ internal class FFmpegExecutor : IFFmpegExecutor
         Console.CancelKeyPress += OnCancelKeyPress;
     }
 
-    public string ExecuteCommand(SupportedExecutors executor, string arguments, CancellationToken cancellationToken = default)
+    public string ExecuteCommand(SupportedExecutors executor, string arguments)
     {
         _logger.LogInformation("Starting FFmpeg");
 
@@ -72,29 +71,18 @@ internal class FFmpegExecutor : IFFmpegExecutor
 
             _ffmpegProcess.Exited += (sender, e) =>
             {
-                _logger.LogDebug("Process exited with Id: {Id}", _ffmpegProcess.Id);
+                _logger.LogDebug("Process exited with Id: {Id}", _ffmpegProcess?.Id);
+                if(_ffmpegProcess is not null)
+                {
+                    KillFFmpegProcess(_ffmpegProcess);
+                }
             };
 
             _ffmpegProcess.Start();
             _ffmpegProcess.BeginOutputReadLine();
             _ffmpegProcess.BeginErrorReadLine();
 
-            while (!_ffmpegProcess.WaitForExit(100))
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    _ffmpegProcess.Kill();
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
-            }
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                _ffmpegProcess.Kill();
-                cancellationToken.ThrowIfCancellationRequested();
-            }
-
-            var output = outputBuilder.ToString();
+            _ffmpegProcess.WaitForExit();
 
             if (_ffmpegProcess.ExitCode != 0)
             {
@@ -102,6 +90,7 @@ internal class FFmpegExecutor : IFFmpegExecutor
             }
 
             _logger.LogInformation("FFmpeg Process complete");
+            var output = outputBuilder.ToString();
             return output;
         }
         catch (OperationCanceledException)

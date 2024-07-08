@@ -5,8 +5,8 @@ using FFmpegExecutor;
 
 internal class CustomCommandExecutor(IFFmpegExecutor ffmpegExecutor) : ICustomCommandExecutor
 {
-    public string RunCommand(string arguments, SupportedExecutors executor = SupportedExecutors.ffmpeg, CancellationToken cancellationToken = default)
+    public string RunCommand(string arguments, SupportedExecutors executor = SupportedExecutors.ffmpeg)
     {
-        return ffmpegExecutor.ExecuteCommand(executor, arguments, cancellationToken);
+        return ffmpegExecutor.ExecuteCommand(executor, arguments);
     }
 }

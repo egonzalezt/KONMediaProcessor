@@ -12,7 +12,7 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
     private readonly IFileValidator _fileValidator = fileValidator;
     private readonly IAudioInfoProcessor _audioInfoProcessor = audioInfoProcessor;
 
-    public string TranscodeAudio(string inputFilePath, string outputFilePath, AudioCodec audioEncoder = AudioCodec.AAC, int audioBitrate = 128, bool overrideFile = false, CancellationToken cancellationToken = default)
+    public string TranscodeAudio(string inputFilePath, string outputFilePath, AudioCodec audioEncoder = AudioCodec.AAC, int audioBitrate = 128, bool overrideFile = false)
     {
         var inputs = new string[] { inputFilePath };
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
@@ -23,7 +23,7 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
         string arguments = $"-i \"{inputFilePath}\" -c:a {audioEncoder.ToString().ToLower()} -b:a {audioBitrate}k \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
 
-        string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
+        string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
 
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
@@ -33,13 +33,13 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
         return outputFilePath;
     }
 
-    public void ChangeAudioBitrate(string inputFilePath, string outputFilePath, int newBitrate, bool overrideFile = false, CancellationToken cancellationToken = default)
+    public void ChangeAudioBitrate(string inputFilePath, string outputFilePath, int newBitrate, bool overrideFile = false)
     {
         var inputs = new string[] { inputFilePath };
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         string arguments = $"-i \"{inputFilePath}\" -b:a {newBitrate}k \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
+        string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
 
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
@@ -47,13 +47,13 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
         }
     }
 
-    public void ChangeAudioChannels(string inputFilePath, string outputFilePath, int channels, bool overrideFile = false, CancellationToken cancellationToken = default)
+    public void ChangeAudioChannels(string inputFilePath, string outputFilePath, int channels, bool overrideFile = false)
     {
         var inputs = new string[] { inputFilePath };
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         string arguments = $"-i \"{inputFilePath}\" -ac {channels} \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
-        string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
+        string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
 
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
@@ -61,7 +61,7 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
         }
     }
 
-    public void ConcatenateAudios(string[] inputFilePaths, string outputFilePath, bool overrideFile = false, CancellationToken cancellationToken = default)
+    public void ConcatenateAudios(string[] inputFilePaths, string outputFilePath, bool overrideFile = false)
     {
         if (inputFilePaths == null || inputFilePaths.Length == 0)
         {
@@ -96,20 +96,20 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
         arguments += $" concat=n={inputFilePaths.Length}:v=0:a=1 [a]\" -map \"[a]\" \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
 
-        var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
+        var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
             throw new FFmpegException($"Error concatenating audios: {result}");
         }
     }
 
-    public void ConvertAudioFormat(string inputFilePath, string outputFilePath, string format, bool overrideFile = false, CancellationToken cancellationToken = default)
+    public void ConvertAudioFormat(string inputFilePath, string outputFilePath, string format, bool overrideFile = false)
     {
         var inputs = new string[] { inputFilePath };
         _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         var arguments = $"-i \"{inputFilePath}\" \"{outputFilePath}.{format}\"";
         arguments += overrideFile ? " -y" : " -n";
-        var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments, cancellationToken);
+        var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
         {
             throw new FFmpegException($"Error converting audio format: {result}");

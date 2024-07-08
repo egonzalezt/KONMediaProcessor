@@ -73,4 +73,9 @@ public class ImageTranscodingSamples
         _imageTranscodingProcessor.ConvertImageToVideo("Examples/Multimedia/k-on.png", 2, 1920, 1080, outputFilePath2);
         _logger.LogInformation("Video created from image located at: {Path}", outputFilePath2);
     }
+
+    public void ImageAsBase64()
+    {
+        _imageTranscodingProcessor.GenerateImageAsBase64("Examples/Multimedia/k-on.png");
+    }
 }

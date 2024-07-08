@@ -4,5 +4,5 @@ using Entities;
 
 public interface IAudioInfoProcessor
 {
-    AudioInfo GetAudioInfo(string inputFile, CancellationToken cancellationToken = default);
+    AudioInfo GetAudioInfo(string inputFile);
 }

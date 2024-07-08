@@ -19,8 +19,7 @@ public interface IImageTranscodingProcessor
     /// <param name="fontSize">Font size of the text.</param>
     /// <param name="outputFilePath">File path for the generated image.</param>
     /// <param name="overrideFile">Flag indicating whether to override the file if it already exists.</param>
-    /// <param name="cancellationToken">Cancellation token to stop the process</param>
-    void GenerateImage(List<TextData> textDataList, string fontPath, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, bool overrideFile = false, CancellationToken cancellationToken = default);
+    void GenerateImage(List<TextData> textDataList, string fontPath, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, bool overrideFile = false);
 
     /// <summary>
     /// Combines multiple images into a single image with specified dimensions and background color.
@@ -31,8 +30,7 @@ public interface IImageTranscodingProcessor
     /// <param name="outputFilePath">File path for the combined image.</param>
     /// <param name="backgroundColor">Background color of the combined image.</param>
     /// <param name="overrideFile">Flag indicating whether to override the file if it already exists.</param>
-    /// <param name="cancellationToken">Cancellation token to stop the process</param>
-    void CombineImages(List<ImageData> imageDataList, int width, int height, string outputFilePath, string backgroundColor, bool overrideFile = false, CancellationToken cancellationToken = default);
+    void CombineImages(List<ImageData> imageDataList, int width, int height, string outputFilePath, string backgroundColor, bool overrideFile = false);
 
     /// <summary>
     /// Resizes an image to specified dimensions.
@@ -42,8 +40,7 @@ public interface IImageTranscodingProcessor
     /// <param name="newHeight">New height of the image.</param>
     /// <param name="outputFilePath">File path for the resized image.</param>
     /// <param name="overrideFile">Flag indicating whether to override the file if it already exists.</param>
-    /// <param name="cancellationToken">Cancellation token to stop the process</param>
-    void ResizeImage(string inputFilePath, int newWidth, int newHeight, string outputFilePath, bool overrideFile = false, CancellationToken cancellationToken = default);
+    void ResizeImage(string inputFilePath, int newWidth, int newHeight, string outputFilePath, bool overrideFile = false);
 
     /// <summary>
     /// Converts an image to a video with specified dimensions and duration.
@@ -54,8 +51,7 @@ public interface IImageTranscodingProcessor
     /// <param name="height">Height of the video.</param>
     /// <param name="outputFilePath">File path for the generated video.</param>
     /// <param name="overrideFile">Flag indicating whether to override the file if it already exists.</param>
-    /// <param name="cancellationToken">Cancellation token to stop the process</param>
-    void ConvertImageToVideo(string inputFilePath, int durationInSeconds, int width, int height, string outputFilePath, bool overrideFile = false, CancellationToken cancellationToken = default);
+    void ConvertImageToVideo(string inputFilePath, int durationInSeconds, int width, int height, string outputFilePath, bool overrideFile = false);
 
     /// <summary>
     /// Converts an image to a video with specified duration.
@@ -65,6 +61,12 @@ public interface IImageTranscodingProcessor
     /// <param name="durationInSeconds">Duration of the video in seconds.</param>
     /// <param name="outputFilePath">File path for the generated video.</param>
     /// <param name="overrideFile">Flag indicating whether to override the file if it already exists.</param>
-    /// <param name="cancellationToken">Cancellation token to stop the process</param>
-    void ConvertImageToVideo(string inputFilePath, int durationInSeconds, string outputFilePath, bool overrideFile = false, CancellationToken cancellationToken = default);
+    void ConvertImageToVideo(string inputFilePath, int durationInSeconds, string outputFilePath, bool overrideFile = false);
+
+    /// <summary>
+    /// Gets the image base64 string
+    /// </summary>
+    /// <param name="inputFilePath">File path of the input image.</param>
+    /// <returns>The image as base64</returns>
+    string GenerateImageAsBase64(string imagePath);
 }
