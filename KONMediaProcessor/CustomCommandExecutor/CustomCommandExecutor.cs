@@ -1,6 +1,6 @@
 ﻿namespace KONMediaProcessor.CustomCommandExecutor;
 
-using Domain.Shared;
+using Shared;
 using FFmpegExecutor;
 
 internal class CustomCommandExecutor(IFFmpegExecutor ffmpegExecutor) : ICustomCommandExecutor

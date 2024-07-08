@@ -1,6 +1,6 @@
 ﻿namespace KONMediaProcessor.ImageProcessor.ImageTranscoding;
 
-using Domain.ImageInfo;
+using ImageInfo.Entities;
 
 /// <summary>
 /// Provides methods to create or modify images

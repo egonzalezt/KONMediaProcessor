@@ -1,6 +1,6 @@
 ﻿namespace KONMediaProcessor.ImageProcessor.ImageInfo;
 
-using Domain.ImageInfo;
+using Entities;
 
 /// <summary>
 /// Provides methods to retrieve information about images.

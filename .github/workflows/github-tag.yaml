@@ -1,0 +1,81 @@
+name: Bump version
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-version:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    outputs:
+      new_tag: ${{ steps.bump-version.outputs.new_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      - name: Bump version and push tag
+        id: bump-version
+        uses: anothrNick/github-tag-action@1.64.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: false
+          MAJOR_STRING_TOKEN: "release("
+          MINOR_STRING_TOKEN: "feat("
+          PATCH_STRING_TOKEN: "fix("
+          DEFAULT_BUMP: minor
+      - name: Generate changelog
+        id: generate_changelog
+        run: |
+          git log $(git describe --tags --abbrev=0 @^)..@ --pretty=format:'%s' | grep -Eo '^(feat|fix)\([a-z]+\): [a-zA-Z0-9 ]+' | sed 's/^feat(\([a-z]+\)): \(.*\)$/\1: \2/' > changelog.txt
+      - name: Set changelog output
+        id: set_changelog_output
+        run: echo "changelog=$(cat changelog.txt | tr '\n' ' ')" >> $GITHUB_ENV          
+  build-nuget-package:
+    needs: generate-version
+    name: Build and publish nuget
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+    env:
+      BUILD_CONFIG: 'Release'
+      SOLUTION: 'KONMediaProcessor.sln'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.5
+
+      - name: Restore dependencies
+        run: nuget restore $SOLUTION
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 8.x
+
+      - name: Restore
+        run: dotnet restore $SOLUTION
+
+      - name: Build
+        run: dotnet build $SOLUTION --configuration $BUILD_CONFIG -p:Version=${{ needs.generate-version.outputs.new_tag }} --no-restore
+
+      - name: Run tests
+        run: dotnet test ${{ env.SOLUTION }} --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal
+
+      - name: Publish
+        run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}} -SkipDuplicate
+  
+  generate-release:
+      runs-on: ubuntu-22.04
+      needs: generate-version
+      permissions:
+        contents: write
+      steps:
+        - uses: actions/checkout@v4
+        - name: Create a GitHub release
+          uses: ncipollo/release-action@v1
+          with:
+            tag: ${{ needs.generate-version.outputs.new_tag }}
+            name: Release ${{ needs.generate-version.outputs.new_tag }}
+            body: ${{ env.changelog }}

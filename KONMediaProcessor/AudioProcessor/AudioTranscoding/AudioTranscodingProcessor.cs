@@ -1,8 +1,8 @@
 ﻿namespace KONMediaProcessor.AudioProcessor.AudioTranscoding;
 
 using AudioProcessor.AudioInfo;
-using Domain.Exceptions;
-using Domain.Shared;
+using Exceptions;
+using Shared;
 using FFmpegExecutor;
 using FileValidator;
 

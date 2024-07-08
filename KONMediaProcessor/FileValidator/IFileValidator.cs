@@ -1,6 +1,6 @@
 ﻿namespace KONMediaProcessor.FileValidator;
 
-using Domain.Exceptions;
+using Exceptions;
 
 /// <summary>
 /// Interface for validating files and directories.

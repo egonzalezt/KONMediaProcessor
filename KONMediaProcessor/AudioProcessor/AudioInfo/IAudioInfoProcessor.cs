@@ -1,6 +1,6 @@
 ﻿namespace KONMediaProcessor.AudioProcessor.AudioInfo;
 
-using Domain.AudioInfo;
+using Entities;
 
 public interface IAudioInfoProcessor
 {

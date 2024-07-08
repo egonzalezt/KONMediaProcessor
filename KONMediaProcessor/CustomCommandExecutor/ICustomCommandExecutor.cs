@@ -1,7 +1,7 @@
 ﻿namespace KONMediaProcessor.CustomCommandExecutor;
 
-using Domain.Shared;
-using Domain.Exceptions;
+using Shared;
+using Exceptions;
 using System.Threading;
 
 /// <summary>

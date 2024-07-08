@@ -1,7 +1,7 @@
 ﻿namespace KONMediaProcessor.AudioProcessor.AudioTranscoding;
 
-using Domain.Shared;
-using Domain.Exceptions;
+using Shared;
+using Exceptions;
 
 /// <summary>
 /// Interface for audio transcoding operations.

@@ -1,6 +1,6 @@
 ﻿namespace KONMediaProcessor.VideoProcessor.VideoInfo;
 
-using Domain.VideoInfo;
+using Entities;
 
 /// <summary>
 /// Provides methods to retrieve information about videos.

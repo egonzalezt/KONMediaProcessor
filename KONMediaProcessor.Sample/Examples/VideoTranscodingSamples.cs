@@ -2,7 +2,7 @@
 
 using VideoProcessor.VideoTranscoding;
 using Microsoft.Extensions.Logging;
-using KONMediaProcessor.Domain.VideoInfo;
+using VideoProcessor.VideoInfo.Entities;
 
 public class VideoTranscodingSamples
 {
@@ -28,7 +28,7 @@ public class VideoTranscodingSamples
     {
         var originalVideoPath = "Examples/Multimedia/sampleVideo.mp4";
         var outputFilePath = Path.Combine(_outputPath, $"Transcode-{Guid.NewGuid()}.mp4");
-        _videoTranscodingProcessor.TranscodeVideo(originalVideoPath, outputFilePath, Domain.Shared.VideoCodec.MPEG4, Domain.Shared.AudioCodec.FLAC);
+        _videoTranscodingProcessor.TranscodeVideo(originalVideoPath, outputFilePath, Shared.VideoCodec.H264, Shared.AudioCodec.FLAC);
         _logger.LogInformation("Final video located at: {Path}", outputFilePath);
     }
 

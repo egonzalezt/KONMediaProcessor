@@ -1,7 +1,7 @@
 ﻿namespace KONMediaProcessor.Sample.Examples;
 
-using Domain.ImageInfo;
 using ImageProcessor.ImageTranscoding;
+using ImageProcessor.ImageInfo.Entities;
 using Microsoft.Extensions.Logging;
 
 public class ImageTranscodingSamples

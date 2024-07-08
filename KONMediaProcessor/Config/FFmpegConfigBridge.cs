@@ -1,7 +1,7 @@
 ﻿namespace KONMediaProcessor.Config;
 
-using Domain.Exceptions;
-using Domain.Shared;
+using Exceptions;
+using Shared;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;

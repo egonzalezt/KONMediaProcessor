@@ -1,6 +1,6 @@
 ﻿namespace KONMediaProcessor.FileValidator;
 
-using Domain.Exceptions;
+using Exceptions;
 
 internal class FileValidator : IFileValidator
 {

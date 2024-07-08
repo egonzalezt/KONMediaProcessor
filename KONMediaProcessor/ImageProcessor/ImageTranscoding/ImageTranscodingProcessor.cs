@@ -1,11 +1,11 @@
 ﻿namespace KONMediaProcessor.ImageProcessor.ImageTranscoding;
 
-using Domain.ImageInfo;
-using Domain.Exceptions;
-using Domain.Shared;
+using Exceptions;
+using Shared;
 using FFmpegExecutor;
 using FileValidator;
 using System.Text;
+using ImageInfo.Entities;
 
 internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidator fileValidator) : IImageTranscodingProcessor
 {

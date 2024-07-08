@@ -1,7 +1,7 @@
-﻿using KONMediaProcessor.VideoProcessor.VideoInfo;
-using Microsoft.Extensions.Logging;
+﻿namespace KONMediaProcessor.Sample.Examples;
 
-namespace KONMediaProcessor.Sample.Examples;
+using Microsoft.Extensions.Logging;
+using VideoProcessor.VideoInfo;
 
 public class VideoInfoSamples(IVideoInfoProcessor videoInfoProcessor, ILogger<VideoInfoSamples> logger)
 {

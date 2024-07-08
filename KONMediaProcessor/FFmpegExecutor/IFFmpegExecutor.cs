@@ -1,7 +1,7 @@
 ﻿namespace KONMediaProcessor.FFmpegExecutor;
 
-using Domain.Exceptions;
-using Domain.Shared;
+using Exceptions;
+using Shared;
 
 /// <summary>
 /// Executes FFmpeg or FFprobe commands.

@@ -1,9 +1,9 @@
 ﻿namespace KONMediaProcessor.ImageProcessor.ImageInfo;
 
-using Domain.Exceptions;
-using Domain.ImageInfo.Dtos;
-using Domain.ImageInfo;
-using Domain.Shared;
+using Exceptions;
+using Entities;
+using Entities.Dtos;
+using Shared;
 using FFmpegExecutor;
 using FileValidator;
 using System.Text.Json;

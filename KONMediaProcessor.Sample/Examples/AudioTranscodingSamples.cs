@@ -30,7 +30,7 @@ public class AudioTranscodingSamples
     {
         var originalVideoPath = "Examples/Multimedia/744946__crackerjack56__downed.mp3";
         var outputFilePath = Path.Combine(_outputPath, $"Transcode-{Guid.NewGuid()}");
-        _audioTranscodingProcessor.TranscodeAudio(originalVideoPath, outputFilePath, Domain.Shared.AudioCodec.FLAC, 256);
+        _audioTranscodingProcessor.TranscodeAudio(originalVideoPath, outputFilePath, Shared.AudioCodec.FLAC, 256);
         _logger.LogInformation("Final audio located at: {Path}", outputFilePath);
     }
 

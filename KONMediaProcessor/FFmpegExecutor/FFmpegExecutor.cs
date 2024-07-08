@@ -1,8 +1,8 @@
 ﻿namespace KONMediaProcessor.FFmpegExecutor;
 
 using Config;
-using Domain.Exceptions;
-using Domain.Shared;
+using Exceptions;
+using Shared;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -68,6 +68,11 @@ internal class FFmpegExecutor : IFFmpegExecutor
                 {
                     _logger.LogDebug(e.Data);
                 }
+            };
+
+            _ffmpegProcess.Exited += (sender, e) =>
+            {
+                _logger.LogDebug("Process exited with Id: {Id}", _ffmpegProcess.Id);
             };
 
             _ffmpegProcess.Start();
@@ -151,7 +156,7 @@ internal class FFmpegExecutor : IFFmpegExecutor
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "Error killing FFmpeg process: {ErrorMessage}", ex.Message);
+            _logger.LogDebug(ex, "Error killing FFmpeg process: {ErrorMessage}", ex.Message);
         }
     }
 }

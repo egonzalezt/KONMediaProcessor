@@ -1,9 +1,9 @@
 ﻿namespace KONMediaProcessor.VideoProcessor.VideoInfo;
 
-using Domain.VideoInfo;
-using Domain.VideoInfo.Dtos;
-using Domain.Exceptions;
-using Domain.Shared;
+using Entities;
+using Entities.Dtos;
+using Exceptions;
+using Shared;
 using FFmpegExecutor;
 using System.Linq;
 using System.Text.Json;

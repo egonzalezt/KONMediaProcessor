@@ -1,11 +1,11 @@
 ﻿namespace KONMediaProcessor.VideoProcessor.VideoTranscoding;
 
-using Domain.Exceptions;
+using Exceptions;
 using FFmpegExecutor;
 using FileValidator;
-using Domain.Shared;
+using Shared;
 using VideoProcessor.VideoInfo;
-using Domain.VideoInfo;
+using VideoInfo.Entities;
 
 internal class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoProcessor videoInfoProcessor, IFileValidator fileValidator) : IVideoTranscodingProcessor
 {

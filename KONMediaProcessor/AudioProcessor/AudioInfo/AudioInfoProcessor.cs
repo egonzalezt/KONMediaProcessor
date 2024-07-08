@@ -1,13 +1,12 @@
 ﻿namespace KONMediaProcessor.AudioProcessor.AudioInfo;
 
-using Config;
-using Domain.Exceptions;
-using Domain.AudioInfo.Dtos;
-using Domain.AudioInfo;
+using Exceptions;
 using FFmpegExecutor;
 using FileValidator;
 using System.Text.Json;
-using KONMediaProcessor.Domain.Shared;
+using Shared;
+using Entities;
+using Entities.Dtos;
 
 internal class AudioInfoProcessor(IFFmpegExecutor executor, IFileValidator fileValidator) : IAudioInfoProcessor
 {
