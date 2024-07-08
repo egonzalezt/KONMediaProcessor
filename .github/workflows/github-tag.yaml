@@ -24,6 +24,7 @@ jobs:
           MAJOR_STRING_TOKEN: "release("
           MINOR_STRING_TOKEN: "feat("
           PATCH_STRING_TOKEN: "fix("
+          NONE_STRING_TOKEN: "docs("
           DEFAULT_BUMP: minor
       - name: Generate changelog
         id: generate_changelog
