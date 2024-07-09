@@ -1,6 +1,5 @@
 ﻿namespace KONMediaProcessor.ImageProcessor.ImageTranscoding;
 
-using Exceptions;
 using Shared;
 using FFmpegExecutor;
 using FileValidator;
@@ -12,21 +11,29 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
     private readonly IFFmpegExecutor _executor = executor;
     private readonly IFileValidator _fileValidator = fileValidator;
 
-    public void GenerateImage(List<TextData> textDataList, string fontPath, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, bool overrideFile = false)
+    public void GenerateImage(List<TextData> textDataList, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, string? fontPath = null, bool overrideFile = false)
     {
-        _fileValidator.EnsureDirectoryPathExists(outputFilePath);
-        if (!overrideFile && _fileValidator.FileExists(outputFilePath))
+        var processedOutputPath = _fileValidator.ValidateOutputPath(outputFilePath, overrideFile);
+
+        if (!string.IsNullOrEmpty(fontPath))
         {
-            throw new FileAlreadyExistsException(outputFilePath);
+            fontPath = _fileValidator.ValidateFileExists(fontPath);
         }
 
         var command = $"-f lavfi -i color=c={backgroundColor}:s={width}x{height}:d=5 -vf \"";
 
         foreach (var textData in textDataList)
         {
-            command += $"drawtext=text='{textData.Text}':x={textData.X}:y={textData.Y}:fontfile={fontPath}:fontcolor={textColor}:fontsize={fontSize},";
+            if (!string.IsNullOrEmpty(fontPath))
+            {
+                command += $"drawtext=text='{textData.Text}':x={textData.X}:y={textData.Y}:fontfile={fontPath}:fontcolor={textColor}:fontsize={fontSize},";
+            }
+            else
+            {
+                command += $"drawtext=text='{textData.Text}':x={textData.X}:y={textData.Y}:fontcolor={textColor}:fontsize={fontSize},";
+            }
         }
-        command = command.TrimEnd(',') + $"\" -frames:v 1 {outputFilePath}";
+        command = command.TrimEnd(',') + $"\" -frames:v 1 {processedOutputPath}";
         command += overrideFile ? " -y" : " -n";
         _executor.ExecuteCommand(SupportedExecutors.ffmpeg, command);
     }
@@ -34,7 +41,7 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
     public void CombineImages(List<ImageData> imageDataList, int width, int height, string outputFilePath, string backgroundColor, bool overrideFile = false)
     {
         var inputs = imageDataList.Select(i => i.Path).ToArray();
-        _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
+        (_, string outputPath) = _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
         var commandBuilder = new StringBuilder();
         if (overrideFile)
         {
@@ -65,7 +72,7 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
         }
 
         commandBuilder.Append("\" ");
-        commandBuilder.AppendFormat("-frames:v 1 \"{0}\"", outputFilePath);
+        commandBuilder.AppendFormat("-frames:v 1 \"{0}\"", outputPath);
         string command = commandBuilder.ToString();
 
         _executor.ExecuteCommand(SupportedExecutors.ffmpeg, command);
@@ -73,42 +80,38 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
 
     public void ResizeImage(string inputFilePath, int newWidth, int newHeight, string outputFilePath, bool overrideFile = false)
     {
-        _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
-        var command = $"-i \"{inputFilePath}\" -vf scale={newWidth}:{newHeight} -frames:v 1 \"{outputFilePath}\"";
+        var (validatedInputs, validatedOutput) = _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
+        var command = $"-i \"{validatedInputs.First()}\" -vf scale={newWidth}:{newHeight} -frames:v 1 \"{validatedOutput}\"";
         command += overrideFile ? " -y" : " -n";
         _executor.ExecuteCommand(SupportedExecutors.ffmpeg, command);
     }
 
     public void ConvertImageToVideo(string inputFilePath, int durationInSeconds, int width, int height, string outputFilePath, bool overrideFile = false)
     {
-        _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
-        var command = $"-loop 1 -i \"{inputFilePath}\" -vf \"scale={width}:{height}\" -t {durationInSeconds} -c:v libx264 -pix_fmt yuva420p \"{outputFilePath}\"";
+        var (validatedInputs, validatedOutput) = _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
+        var command = $"-loop 1 -i \"{validatedInputs.First()}\" -vf \"scale={width}:{height}\" -t {durationInSeconds} -c:v libx264 -pix_fmt yuva420p \"{validatedOutput}\"";
         command += overrideFile ? " -y" : " -n";
         _executor.ExecuteCommand(SupportedExecutors.ffmpeg, command);
     }
 
     public void ConvertImageToVideo(string inputFilePath, int durationInSeconds, string outputFilePath, bool overrideFile = false)
     {
-        _fileValidator.ValidatePaths(new[] { inputFilePath }, outputFilePath, overrideFile);
+        var (validatedInputs, validatedOutput) = _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
         var commandBuilder = new StringBuilder();
         if (overrideFile)
         {
             commandBuilder.Append("-y ");
         }
         commandBuilder.AppendFormat("-loop 1 -i \"{0}\" -vf \"scale=trunc(iw/2)*2:trunc(ih/2)*2\" -t {1} -c:v libx264 -pix_fmt yuv420p \"{2}\"",
-            inputFilePath, durationInSeconds, outputFilePath);
+            validatedInputs.First(), durationInSeconds, validatedOutput);
         string command = commandBuilder.ToString();
         _executor.ExecuteCommand(SupportedExecutors.ffmpeg, command);
     }
 
-    public string GenerateImageAsBase64(string imagePath)
+    public string ImageToBase64(string imagePath)
     {
-        if (!_fileValidator.FileExists(imagePath))
-        {
-            throw new FileNotFoundException($"The file at path {imagePath} was not found.");
-        }
-
-        byte[] imageBytes = File.ReadAllBytes(imagePath);
+        var processedPath = _fileValidator.ValidateFileExists(imagePath);
+        byte[] imageBytes = File.ReadAllBytes(processedPath);
         string base64String = Convert.ToBase64String(imageBytes);
         return base64String;
     }

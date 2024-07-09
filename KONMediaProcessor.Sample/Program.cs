@@ -5,6 +5,7 @@ using KONMediaProcessor.Sample.Examples.Image;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+FFmpegConfig.logCommand = true;
 var serviceCollection = new ServiceCollection();
 ConfigureServices(serviceCollection);
 var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -32,7 +33,6 @@ videoTranscodingSamples.ChangeAspectRatio();
 var audioInfoSamples = serviceProvider.GetRequiredService<AudioInfoSamples>();
 audioInfoSamples.GetAudioInfo();
 audioInfoSamples.GetAudioInfoFromVideo();
-
 
 var audioTranscodingSamples = serviceProvider.GetRequiredService<AudioTranscodingSamples>();
 audioTranscodingSamples.TranscodeAudio();

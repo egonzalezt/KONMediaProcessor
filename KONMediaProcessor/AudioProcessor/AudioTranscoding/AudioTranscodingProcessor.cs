@@ -14,13 +14,12 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
 
     public string TranscodeAudio(string inputFilePath, string outputFilePath, AudioCodec audioEncoder = AudioCodec.AAC, int audioBitrate = 128, bool overrideFile = false)
     {
-        var inputs = new string[] { inputFilePath };
-        _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
+        var (validatedInputs, validatedOutput) = _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
         string desiredExtension = GetFileExtensionForCodec(audioEncoder);
-        outputFilePath = AdjustOutputFilePath(outputFilePath, desiredExtension);
+        outputFilePath = AdjustOutputFilePath(validatedOutput, desiredExtension);
         outputFilePath = AddExtensionIfMissing(outputFilePath, desiredExtension);
 
-        string arguments = $"-i \"{inputFilePath}\" -c:a {audioEncoder.ToString().ToLower()} -b:a {audioBitrate}k \"{outputFilePath}\"";
+        string arguments = $"-i \"{validatedInputs.First()}\" -c:a {audioEncoder.ToString().ToLower()} -b:a {audioBitrate}k \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
 
         string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
@@ -35,9 +34,8 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
 
     public void ChangeAudioBitrate(string inputFilePath, string outputFilePath, int newBitrate, bool overrideFile = false)
     {
-        var inputs = new string[] { inputFilePath };
-        _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
-        string arguments = $"-i \"{inputFilePath}\" -b:a {newBitrate}k \"{outputFilePath}\"";
+        var (validatedInputs, validatedOutput) = _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
+        string arguments = $"-i \"{validatedInputs.First()}\" -b:a {newBitrate}k \"{validatedOutput}\"";
         arguments += overrideFile ? " -y" : " -n";
         string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
 
@@ -49,8 +47,7 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
 
     public void ChangeAudioChannels(string inputFilePath, string outputFilePath, int channels, bool overrideFile = false)
     {
-        var inputs = new string[] { inputFilePath };
-        _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
+        var (validatedInputs, validatedOutput) = _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
         string arguments = $"-i \"{inputFilePath}\" -ac {channels} \"{outputFilePath}\"";
         arguments += overrideFile ? " -y" : " -n";
         string result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
@@ -63,37 +60,27 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
 
     public void ConcatenateAudios(string[] inputFilePaths, string outputFilePath, bool overrideFile = false)
     {
-        if (inputFilePaths == null || inputFilePaths.Length == 0)
-        {
-            throw new ArgumentException("Input file paths cannot be null or empty.", nameof(inputFilePaths));
-        }
+        var (validatedInputs, validatedOutput) = _fileValidator.ValidatePaths(inputFilePaths, outputFilePath, overrideFile);
 
-        if (string.IsNullOrEmpty(outputFilePath))
+        var firstAudioInfo = _audioInfoProcessor.GetAudioInfo(validatedInputs[0]);
+        for (int i = 1; i < validatedInputs.Length; i++)
         {
-            throw new ArgumentNullException(nameof(outputFilePath));
-        }
-
-        _fileValidator.ValidatePaths(inputFilePaths, outputFilePath, overrideFile);
-
-        var firstAudioInfo = _audioInfoProcessor.GetAudioInfo(inputFilePaths[0]);
-        for (int i = 1; i < inputFilePaths.Length; i++)
-        {
-            var audioInfo = _audioInfoProcessor.GetAudioInfo(inputFilePaths[i]);
+            var audioInfo = _audioInfoProcessor.GetAudioInfo(validatedInputs[i]);
             if (audioInfo.Channels != firstAudioInfo.Channels || audioInfo.SampleRate != firstAudioInfo.SampleRate)
             {
                 throw new DifferentAudioPropertiesException("Audios have different properties. Concatenation is not supported.");
             }
         }
 
-        string inputFiles = string.Join(" ", inputFilePaths.Select(path => $"-i \"{path}\""));
+        string inputFiles = string.Join(" ", validatedInputs.Select(path => $"-i \"{path}\""));
         var arguments = $" {inputFiles} -filter_complex \"";
 
-        for (int i = 0; i < inputFilePaths.Length; i++)
+        for (int i = 0; i < validatedInputs.Length; i++)
         {
             arguments += $"[{i}:a]";
         }
 
-        arguments += $" concat=n={inputFilePaths.Length}:v=0:a=1 [a]\" -map \"[a]\" \"{outputFilePath}\"";
+        arguments += $" concat=n={validatedInputs.Length}:v=0:a=1 [a]\" -map \"[a]\" \"{validatedOutput}\"";
         arguments += overrideFile ? " -y" : " -n";
 
         var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
@@ -105,9 +92,8 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
 
     public void ConvertAudioFormat(string inputFilePath, string outputFilePath, string format, bool overrideFile = false)
     {
-        var inputs = new string[] { inputFilePath };
-        _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
-        var arguments = $"-i \"{inputFilePath}\" \"{outputFilePath}.{format}\"";
+        var (validatedInputs, validatedOutput) = _fileValidator.ValidatePaths([inputFilePath], outputFilePath, overrideFile);
+        var arguments = $"-i \"{validatedInputs.First()}\" \"{validatedOutput}.{format}\"";
         arguments += overrideFile ? " -y" : " -n";
         var result = _executor.ExecuteCommand(SupportedExecutors.ffmpeg, arguments);
         if (!string.IsNullOrEmpty(result) && result.Contains("Error:"))
@@ -116,7 +102,7 @@ internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoPro
         }
     }
 
-    private string GetFileExtensionForCodec(AudioCodec audioEncoder)
+    private static string GetFileExtensionForCodec(AudioCodec audioEncoder)
     {
         switch (audioEncoder)
         {

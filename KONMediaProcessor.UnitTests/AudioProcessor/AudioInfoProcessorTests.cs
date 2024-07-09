@@ -15,11 +15,12 @@ public class AudioInfoProcessorTests
     {
         // Arrange
         const string inputFile = "nonexistentfile.mp3";
-        fileValidatorMock.Setup(f => f.FileExists(inputFile)).Returns(false);
+        const string expectedErrorMessage = "Unable to find the specified file.";
+        fileValidatorMock.Setup(f => f.ValidateFileExists(inputFile)).Throws<FileNotFoundException>();
         var audioInfoProcessor = new AudioInfoProcessor(executorMock.Object, fileValidatorMock.Object);
 
         // Act - Assert
         var exception = Assert.Throws<FileNotFoundException>(() => audioInfoProcessor.GetAudioInfo(inputFile));
-        Assert.Equal(inputFile, exception.Message);
+        Assert.Equal(expectedErrorMessage, exception.Message);
     }
 }

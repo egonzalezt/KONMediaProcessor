@@ -1,5 +1,7 @@
 ﻿namespace KONMediaProcessor.FileValidator;
 
+using System;
+using System.IO;
 using Exceptions;
 
 internal class FileValidator : IFileValidator
@@ -7,6 +9,62 @@ internal class FileValidator : IFileValidator
     public bool FileExists(string filePath)
     {
         return File.Exists(filePath);
+    }
+
+    public (string[] inputs, string outputPath) ValidatePaths(string[] inputs, string output, bool overrideFile)
+    {
+        string[] validatedInputs = ValidateInputPaths(inputs);
+        string validatedOutput = ValidateOutputPath(output, overrideFile);
+        return (validatedInputs, validatedOutput);
+    }
+
+    private string[] ValidateInputPaths(string[] inputs)
+    {
+        if (inputs == null || inputs.Length == 0)
+        {
+            throw new ArgumentNullException(nameof(inputs), "Input file paths cannot be null or empty.");
+        }
+
+        for (int i = 0; i < inputs.Length; i++)
+        {
+            if (string.IsNullOrEmpty(inputs[i]))
+            {
+                throw new ArgumentNullException($"Input file path at index {i} is null or empty.");
+            }
+
+            inputs[i] = ValidateFileExists(inputs[i]);
+        }
+
+        return inputs;
+    }
+
+    public string ValidateOutputPath(string output, bool overrideFile)
+    {
+        if (string.IsNullOrEmpty(output))
+        {
+            throw new ArgumentNullException(nameof(output), "Output file path cannot be null or empty.");
+        }
+
+        output = Path.GetFullPath(output);
+
+        EnsureDirectoryPathExists(output);
+
+        if (!overrideFile && FileExists(output))
+        {
+            throw new FileAlreadyExistsException(output);
+        }
+
+        return output;
+    }
+
+    public string ValidateFileExists(string filePath)
+    {
+        var fileToVerify = Path.GetFullPath(filePath);
+        if (!FileExists(fileToVerify))
+        {
+            throw new FileNotFoundException($"The specified file does not exist: {filePath}");
+        }
+        return fileToVerify;
     }
 
     public void EnsureDirectoryExists(string directoryPath)
@@ -19,66 +77,35 @@ internal class FileValidator : IFileValidator
 
     public void EnsureDirectoryPathExists(string filePath)
     {
-        if (filePath is null || string.IsNullOrEmpty(filePath))
+        if (string.IsNullOrEmpty(filePath))
         {
-            throw new ArgumentNullException(nameof(filePath));
+            throw new ArgumentNullException(nameof(filePath), "File path cannot be null or empty.");
         }
 
         var directoryPath = Path.GetDirectoryName(filePath);
-        if (directoryPath is null)
+        if (string.IsNullOrEmpty(directoryPath))
         {
-            throw new ArgumentNullException(nameof(directoryPath));
+            throw new ArgumentNullException(nameof(directoryPath), $"Directory path for {filePath} is null or empty.");
         }
+
         ValidateDirectoryPermissions(directoryPath);
         EnsureDirectoryExists(directoryPath);
     }
 
-    public void ValidatePaths(string[] inputs, string output, bool overrideFile)
-    {
-        foreach (var input in inputs)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                throw new ArgumentNullException(nameof(input));
-            }
-
-            if (string.Equals(input, output, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InputAndOutputFileSameException("The input file cannot be the same as the output file.");
-            }
-
-            if (!FileExists(input))
-            {
-                throw new FileNotFoundException(input);
-            }
-        }
-
-        if (string.IsNullOrEmpty(output))
-        {
-            throw new ArgumentNullException(nameof(output));
-        }
-
-        EnsureDirectoryPathExists(output);
-        if (!overrideFile && FileExists(output))
-        {
-            throw new FileAlreadyExistsException(output);
-        }
-    }
-
-    private static void ValidateDirectoryPermissions(string directoryPath)
+    private void ValidateDirectoryPermissions(string directoryPath)
     {
         if (!Directory.Exists(directoryPath))
         {
-            throw new DirectoryNotFoundException($"Directory {directoryPath} not found");
+            throw new DirectoryNotFoundException($"Directory {directoryPath} not found.");
         }
 
         if (!HasWritePermission(directoryPath))
         {
-            throw new UnauthorizedAccessException($"The current path {directoryPath} requires permissions to creates a directory");
+            throw new UnauthorizedAccessException($"Insufficient permissions to write to directory {directoryPath}.");
         }
     }
 
-    private static bool HasWritePermission(string directoryPath)
+    private bool HasWritePermission(string directoryPath)
     {
         try
         {

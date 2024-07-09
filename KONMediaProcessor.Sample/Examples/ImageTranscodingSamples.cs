@@ -39,7 +39,7 @@ public class ImageTranscodingSamples
         var height = 300;
         var outputFilePath = Path.Combine(_outputPath, $"CreateImage-{Guid.NewGuid()}.jpg");
         var fontSize = 100;
-        _imageTranscodingProcessor.GenerateImage(textDataList, font, textColor, backgroundColor, width, height, fontSize, outputFilePath);
+        _imageTranscodingProcessor.GenerateImage(textDataList, textColor, backgroundColor, width, height, fontSize, outputFilePath, font);
         _logger.LogInformation("Final image located at: {Path}", outputFilePath);
     }
 
@@ -47,8 +47,8 @@ public class ImageTranscodingSamples
     {
         var images = new List<ImageData>
         {
-            new() { X = 0, Y = 200, Path = "Examples/Multimedia/FFmpeg_Logo_new.png" },
-            new() { X = 500, Y = 200, Path = "Examples/Multimedia/k-on.png" }
+            new("Examples/Multimedia/FFmpeg_Logo_new.png", 0, 200),
+            new("Examples/Multimedia/k-on.png", 500, 200)
         };
         var backgroundColor = "black";
         var outputFilePath = Path.Combine(_outputPath, $"JoinImages-{Guid.NewGuid()}.png");
@@ -76,6 +76,6 @@ public class ImageTranscodingSamples
 
     public void ImageAsBase64()
     {
-        _imageTranscodingProcessor.GenerateImageAsBase64("Examples/Multimedia/k-on.png");
+        _imageTranscodingProcessor.ImageToBase64("Examples/Multimedia/k-on.png");
     }
 }

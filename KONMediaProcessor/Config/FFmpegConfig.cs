@@ -4,7 +4,7 @@ public static class FFmpegConfig
 {
     private static string ffmpegLocation;
     private static string ffprobeLocation;
-
+    public static bool logCommand { get; set; } = false;
     public static void SetFFmpegLocation(string location)
     {
         ffmpegLocation = location;

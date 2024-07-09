@@ -11,7 +11,6 @@ public interface IImageTranscodingProcessor
     /// Generates an image with specified text data overlaid.
     /// </summary>
     /// <param name="textDataList">List of text data to overlay on the image.</param>
-    /// <param name="font">Font path to be used for the text.</param>
     /// <param name="textColor">Color of the text.</param>
     /// <param name="backgroundColor">Background color of the image.</param>
     /// <param name="width">Width of the generated image.</param>
@@ -19,7 +18,9 @@ public interface IImageTranscodingProcessor
     /// <param name="fontSize">Font size of the text.</param>
     /// <param name="outputFilePath">File path for the generated image.</param>
     /// <param name="overrideFile">Flag indicating whether to override the file if it already exists.</param>
-    void GenerateImage(List<TextData> textDataList, string fontPath, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, bool overrideFile = false);
+    /// <param name="fontPath">Font path to be used for the text.</param>
+
+    void GenerateImage(List<TextData> textDataList, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, string? fontPath = null, bool overrideFile = false);
 
     /// <summary>
     /// Combines multiple images into a single image with specified dimensions and background color.
@@ -68,5 +69,5 @@ public interface IImageTranscodingProcessor
     /// </summary>
     /// <param name="inputFilePath">File path of the input image.</param>
     /// <returns>The image as base64</returns>
-    string GenerateImageAsBase64(string imagePath);
+    string ImageToBase64(string imagePath);
 }

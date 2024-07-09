@@ -1,6 +1,6 @@
 ﻿namespace KONMediaProcessor.Exceptions;
 
-public class FileAlreadyExistsException : Exception
+public class FileAlreadyExistsException : FFmpegException
 {
     public FileAlreadyExistsException() : base() { }
 

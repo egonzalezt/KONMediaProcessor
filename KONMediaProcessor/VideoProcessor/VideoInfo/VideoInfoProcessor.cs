@@ -16,16 +16,11 @@ internal class VideoInfoProcessor(IFFmpegExecutor executor, IFileValidator fileV
 
     public VideoInfo GetVideoInfo(string inputFile)
     {
-        if (!_fileValidator.FileExists(inputFile))
-        {
-            throw new FileNotFoundException(inputFile);
-        }
-
-        string arguments = $"-v error -select_streams v:0 -show_entries stream=width,height,avg_frame_rate -of json \"{inputFile}\"";
-        string jsonResult = _executor.ExecuteCommand(SupportedExecutors.ffprobe, arguments);
-
-        var ffprobeResult = JsonSerializer.Deserialize<FFprobeResultDto>(jsonResult) ?? throw new FFmpegException("FFmpeg does not return any result");
-        var streamInfo = ffprobeResult.Streams.FirstOrDefault() ?? throw new FFmpegException("No video data was found in the file provided.");
+        var processedInputFile = _fileValidator.ValidateFileExists(inputFile);
+        string arguments = $"-v error -select_streams v:0 -show_entries stream=width,height,avg_frame_rate -of json \"{processedInputFile}\"";
+        string jsonResult = _executor.ExecuteCommand(SupportedExecutors.ffprobe, arguments) ?? throw new FFmpegException("FFmpeg does not return any result"); ;
+        var ffProbeResult = JsonSerializer.Deserialize<FFprobeResultDto>(jsonResult) ?? throw new FFmpegException("FFmpeg does not return any result"); ;
+        var streamInfo = ffProbeResult.Streams.FirstOrDefault() ?? throw new FFmpegException("No video data was found in the file provided.");
 
         return new VideoInfo
         {

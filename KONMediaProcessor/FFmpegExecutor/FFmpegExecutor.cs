@@ -38,6 +38,11 @@ internal class FFmpegExecutor : IFFmpegExecutor
                 throw new EmptyCommandException("Command arguments cannot be null");
             }
 
+            if (FFmpegConfig.logCommand)
+            {
+                _logger.LogInformation("Command to execute: {Cmd}", arguments);
+            }
+
             var startInfo = new ProcessStartInfo
             {
                 FileName = executorPath,

@@ -15,22 +15,17 @@ internal class AudioInfoProcessor(IFFmpegExecutor executor, IFileValidator fileV
 
     public AudioInfo GetAudioInfo(string inputFile)
     {
-        if (!_fileValidator.FileExists(inputFile))
-        {
-            throw new FileNotFoundException(inputFile);
-        }
+        var processedInputFile = _fileValidator.ValidateFileExists(inputFile);
+        string arguments = $"-v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of json \"{processedInputFile}\"";
+        string jsonResult = _executor.ExecuteCommand(SupportedExecutors.ffprobe, arguments) ?? throw new FFmpegException("FFmpeg does not return any result");
+        var ffProbeResult = JsonSerializer.Deserialize<FFprobeAudioResultDto>(jsonResult);
 
-        string arguments = $"-v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of json \"{inputFile}\"";
-        string jsonResult = _executor.ExecuteCommand(SupportedExecutors.ffprobe, arguments);
-
-        var ffprobeResult = JsonSerializer.Deserialize<FFprobeAudioResultDto>(jsonResult);
-
-        if (ffprobeResult == null || !ffprobeResult.Streams.Any())
+        if (ffProbeResult == null || ffProbeResult.Streams.Count == 0)
         {
             throw new FFmpegException("No audio data was found in the file provided.");
         }
 
-        var streamInfo = ffprobeResult.Streams.First();
+        var streamInfo = ffProbeResult.Streams.First();
 
         return new AudioInfo
         {
