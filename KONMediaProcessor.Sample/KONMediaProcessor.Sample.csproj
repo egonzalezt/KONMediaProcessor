@@ -24,6 +24,9 @@
     <None Update="Examples\Fonts\Arial.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Examples\Fonts\cour.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Examples\Multimedia\744946__crackerjack56__downed.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

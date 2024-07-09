@@ -32,7 +32,7 @@ public class ImageTranscodingSamples
             new(0, 100, "This is a test", "#49DE15", 50),
             new(0, 200, "using facade test", "#C118D5", 50)
         };
-        var font = "Examples/Fonts/Arial.ttf";
+        var font = "Examples/Fonts/cour.ttf";
         var backgroundColor = "black";
         var width = 1000;
         var height = 300;

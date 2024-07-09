@@ -5,6 +5,7 @@ using FFmpegExecutor;
 using FileValidator;
 using System.Text;
 using ImageInfo.Entities;
+using System.Runtime.InteropServices;
 
 internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidator fileValidator) : IImageTranscodingProcessor
 {
@@ -18,6 +19,7 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
         if (!string.IsNullOrEmpty(fontPath))
         {
             fontPath = _fileValidator.ValidateFileExists(fontPath);
+            fontPath = EscapeFontPath(fontPath);
         }
 
         var command = $"-f lavfi -i color=c={(string)canvas.BackgroundColor}:s={canvas.Width}x{canvas.Height}:d=5 -vf \"";
@@ -28,7 +30,7 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
 
             if (!string.IsNullOrEmpty(fontPath))
             {
-                command += $"drawtext=text='{escapedText}':x={textData.X}:y={textData.Y}:fontfile={fontPath}:fontcolor={(string)textData.Color}:fontsize={textData.FontSize},";
+                command += $"drawtext=text='{escapedText}':x={textData.X}:y={textData.Y}:fontfile='{fontPath}':fontcolor={(string)textData.Color}:fontsize={textData.FontSize},";
             }
             else
             {
@@ -46,6 +48,18 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
                    .Replace("'", "\\'")
                    .Replace("\"", "\\\"")
                    .Replace(":", "\\:");
+    }
+
+    private static string EscapeFontPath(string fontPath)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return fontPath.Replace(@"\", @"\\").Replace(":", "\\:");
+        }
+        else
+        {
+            return fontPath.Replace(":", "\\:");
+        }
     }
 
     public void CombineImages(List<ImageData> imageDataList, Canvas canvas, bool overrideFile = false)
