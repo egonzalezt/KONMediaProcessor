@@ -24,18 +24,25 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
 
         foreach (var textData in textDataList)
         {
+            var escapedText = EscapeFFmpegText(textData.Text);
+
             if (!string.IsNullOrEmpty(fontPath))
             {
-                command += $"drawtext=text='{textData.Text}':x={textData.X}:y={textData.Y}:fontfile={fontPath}:fontcolor={textColor}:fontsize={fontSize},";
+                command += $"drawtext=text='{escapedText}':x={textData.X}:y={textData.Y}:fontfile={fontPath}:fontcolor={textColor}:fontsize={fontSize},";
             }
             else
             {
-                command += $"drawtext=text='{textData.Text}':x={textData.X}:y={textData.Y}:fontcolor={textColor}:fontsize={fontSize},";
+                command += $"drawtext=text='{escapedText}':x={textData.X}:y={textData.Y}:fontcolor={textColor}:fontsize={fontSize},";
             }
         }
         command = command.TrimEnd(',') + $"\" -frames:v 1 {processedOutputPath}";
         command += overrideFile ? " -y" : " -n";
         _executor.ExecuteCommand(SupportedExecutors.ffmpeg, command);
+    }
+
+    private string EscapeFFmpegText(string text)
+    {
+        return text.Replace("\\", "\\\\").Replace("'", "\\'").Replace("\"", "\\\"");
     }
 
     public void CombineImages(List<ImageData> imageDataList, int width, int height, string outputFilePath, string backgroundColor, bool overrideFile = false)

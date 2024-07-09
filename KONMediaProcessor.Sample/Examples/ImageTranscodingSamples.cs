@@ -28,9 +28,9 @@ public class ImageTranscodingSamples
     {
         var textDataList = new List<TextData>
         {
-            new() { X = 0, Y = 0, Text = "Hello team!" },
+            new() { X = 0, Y = 0, Text = @"""Hello team""\" },
             new() { X = 0, Y = 100, Text = "This is a test" },
-            new() { X = 0, Y = 200, Text = "using facade" }
+            new() { X = 0, Y = 200, Text = "using facade test" }
         };
         var font = "Examples/Fonts/Arial.ttf";
         var textColor = "white";
