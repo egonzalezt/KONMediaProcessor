@@ -42,7 +42,10 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
 
     private string EscapeFFmpegText(string text)
     {
-        return text.Replace("\\", "\\\\").Replace("'", "\\'").Replace("\"", "\\\"");
+        return text.Replace("\\", "\\\\")
+                   .Replace("'", "\\'")
+                   .Replace("\"", "\\\"")
+                   .Replace(":", "\\:");
     }
 
     public void CombineImages(List<ImageData> imageDataList, int width, int height, string outputFilePath, string backgroundColor, bool overrideFile = false)
