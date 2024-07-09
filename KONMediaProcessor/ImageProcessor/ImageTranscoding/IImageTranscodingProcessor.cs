@@ -11,27 +11,19 @@ public interface IImageTranscodingProcessor
     /// Generates an image with specified text data overlaid.
     /// </summary>
     /// <param name="textDataList">List of text data to overlay on the image.</param>
-    /// <param name="textColor">Color of the text.</param>
-    /// <param name="backgroundColor">Background color of the image.</param>
-    /// <param name="width">Width of the generated image.</param>
-    /// <param name="height">Height of the generated image.</param>
-    /// <param name="fontSize">Font size of the text.</param>
-    /// <param name="outputFilePath">File path for the generated image.</param>
+    /// <param name="canvas">Entity with the basic information of the canvas to draw the text</param>
     /// <param name="overrideFile">Flag indicating whether to override the file if it already exists.</param>
     /// <param name="fontPath">Font path to be used for the text.</param>
 
-    void GenerateImage(List<TextData> textDataList, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, string? fontPath = null, bool overrideFile = false);
+    void GenerateImage(List<TextData> textDataList, Canvas canvas, string? fontPath = null, bool overrideFile = false);
 
     /// <summary>
     /// Combines multiple images into a single image with specified dimensions and background color.
     /// </summary>
     /// <param name="imageDataList">List of image data specifying images to combine and their positions.</param>
-    /// <param name="width">Width of the combined image.</param>
-    /// <param name="height">Height of the combined image.</param>
-    /// <param name="outputFilePath">File path for the combined image.</param>
-    /// <param name="backgroundColor">Background color of the combined image.</param>
+    /// <param name="canvas">Entity with the basic information of the canvas to draw the text</param>
     /// <param name="overrideFile">Flag indicating whether to override the file if it already exists.</param>
-    void CombineImages(List<ImageData> imageDataList, int width, int height, string outputFilePath, string backgroundColor, bool overrideFile = false);
+    void CombineImages(List<ImageData> imageDataList, Canvas canvas, bool overrideFile = false);
 
     /// <summary>
     /// Resizes an image to specified dimensions.

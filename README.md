@@ -2,7 +2,7 @@
 
 [![KONMediaProcessor](https://img.shields.io/nuget/vpre/KONMediaProcessor.svg?cacheSeconds=3600&label=KONMediaProcessor%20nuget)](https://www.nuget.org/packages/KONMediaProcessor)
 
-<p align="center"><a target="_blank"><img src="./k-on.png" width="200"></a></p>
+<p align="center"><a target="_blank"><img src="./icon.png" width="200"></a></p>
 
 KONMediaProcessor is a lightweight media processing library designed to simplify common tasks related to video and image processing in .NET applications. It provides easy-to-use interfaces for transcoding videos, retrieving video information, and obtaining image metadata, serving as a wrapper for the powerful FFmpeg multimedia framework.
 

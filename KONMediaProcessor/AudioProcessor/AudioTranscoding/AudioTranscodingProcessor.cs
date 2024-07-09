@@ -5,6 +5,7 @@ using Exceptions;
 using Shared;
 using FFmpegExecutor;
 using FileValidator;
+using KONMediaProcessor.Exceptions;
 
 internal class AudioTranscodingProcessor(IFFmpegExecutor executor, IAudioInfoProcessor audioInfoProcessor, IFileValidator fileValidator) : IAudioTranscodingProcessor
 {

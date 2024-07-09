@@ -28,18 +28,17 @@ public class ImageTranscodingSamples
     {
         var textDataList = new List<TextData>
         {
-            new() { X = 0, Y = 0, Text = @"""Hello team""\" },
-            new() { X = 0, Y = 100, Text = "This is a test" },
-            new() { X = 0, Y = 200, Text = "using facade test" }
+            new(0, 0, @"""Hello team""\", "#12D7CE", 50),
+            new(0, 100, "This is a test", "#49DE15", 50),
+            new(0, 200, "using facade test", "#C118D5", 50)
         };
         var font = "Examples/Fonts/Arial.ttf";
-        var textColor = "white";
         var backgroundColor = "black";
         var width = 1000;
         var height = 300;
         var outputFilePath = Path.Combine(_outputPath, $"CreateImage-{Guid.NewGuid()}.jpg");
-        var fontSize = 100;
-        _imageTranscodingProcessor.GenerateImage(textDataList, textColor, backgroundColor, width, height, fontSize, outputFilePath, font);
+        var canvas = new Canvas(width, height, backgroundColor, outputFilePath);
+        _imageTranscodingProcessor.GenerateImage(textDataList, canvas, font);
         _logger.LogInformation("Final image located at: {Path}", outputFilePath);
     }
 
@@ -52,7 +51,8 @@ public class ImageTranscodingSamples
         };
         var backgroundColor = "black";
         var outputFilePath = Path.Combine(_outputPath, $"JoinImages-{Guid.NewGuid()}.png");
-        _imageTranscodingProcessor.CombineImages(images, 1920, 1080, outputFilePath, backgroundColor);
+        var canvas = new Canvas(1920, 1080, backgroundColor, outputFilePath);
+        _imageTranscodingProcessor.CombineImages(images, canvas);
         _logger.LogInformation("Final image located at: {Path}", outputFilePath);
     }
 

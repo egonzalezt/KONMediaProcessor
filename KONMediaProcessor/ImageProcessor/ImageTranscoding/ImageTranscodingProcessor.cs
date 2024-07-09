@@ -11,16 +11,16 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
     private readonly IFFmpegExecutor _executor = executor;
     private readonly IFileValidator _fileValidator = fileValidator;
 
-    public void GenerateImage(List<TextData> textDataList, string textColor, string backgroundColor, int width, int height, int fontSize, string outputFilePath, string? fontPath = null, bool overrideFile = false)
+    public void GenerateImage(List<TextData> textDataList, Canvas canvas, string? fontPath = null, bool overrideFile = false)
     {
-        var processedOutputPath = _fileValidator.ValidateOutputPath(outputFilePath, overrideFile);
+        var processedOutputPath = _fileValidator.ValidateOutputPath(canvas.Path, overrideFile);
 
         if (!string.IsNullOrEmpty(fontPath))
         {
             fontPath = _fileValidator.ValidateFileExists(fontPath);
         }
 
-        var command = $"-f lavfi -i color=c={backgroundColor}:s={width}x{height}:d=5 -vf \"";
+        var command = $"-f lavfi -i color=c={(string)canvas.BackgroundColor}:s={canvas.Width}x{canvas.Height}:d=5 -vf \"";
 
         foreach (var textData in textDataList)
         {
@@ -28,11 +28,11 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
 
             if (!string.IsNullOrEmpty(fontPath))
             {
-                command += $"drawtext=text='{escapedText}':x={textData.X}:y={textData.Y}:fontfile={fontPath}:fontcolor={textColor}:fontsize={fontSize},";
+                command += $"drawtext=text='{escapedText}':x={textData.X}:y={textData.Y}:fontfile={fontPath}:fontcolor={(string)textData.Color}:fontsize={textData.FontSize},";
             }
             else
             {
-                command += $"drawtext=text='{escapedText}':x={textData.X}:y={textData.Y}:fontcolor={textColor}:fontsize={fontSize},";
+                command += $"drawtext=text='{escapedText}':x={textData.X}:y={textData.Y}:fontcolor={(string)textData.Color}:fontsize={textData.FontSize},";
             }
         }
         command = command.TrimEnd(',') + $"\" -frames:v 1 {processedOutputPath}";
@@ -40,7 +40,7 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
         _executor.ExecuteCommand(SupportedExecutors.ffmpeg, command);
     }
 
-    private string EscapeFFmpegText(string text)
+    private static string EscapeFFmpegText(string text)
     {
         return text.Replace("\\", "\\\\")
                    .Replace("'", "\\'")
@@ -48,17 +48,17 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
                    .Replace(":", "\\:");
     }
 
-    public void CombineImages(List<ImageData> imageDataList, int width, int height, string outputFilePath, string backgroundColor, bool overrideFile = false)
+    public void CombineImages(List<ImageData> imageDataList, Canvas canvas, bool overrideFile = false)
     {
         var inputs = imageDataList.Select(i => i.Path).ToArray();
-        (_, string outputPath) = _fileValidator.ValidatePaths(inputs, outputFilePath, overrideFile);
+        (_, string outputPath) = _fileValidator.ValidatePaths(inputs, canvas.Path, overrideFile);
         var commandBuilder = new StringBuilder();
         if (overrideFile)
         {
             commandBuilder.Append("-y ");
         }
 
-        commandBuilder.AppendFormat("-f lavfi -i color=c={0}:s={1}x{2} ", backgroundColor, width, height);
+        commandBuilder.AppendFormat("-f lavfi -i color=c={0}:s={1}x{2} ", (string)canvas.BackgroundColor, canvas.Width, canvas.Height);
         for (int i = 0; i < imageDataList.Count; i++)
         {
             commandBuilder.AppendFormat("-i \"{0}\" ", imageDataList[i].Path);
@@ -125,5 +125,4 @@ internal class ImageTranscodingProcessor(IFFmpegExecutor executor, IFileValidato
         string base64String = Convert.ToBase64String(imageBytes);
         return base64String;
     }
-
 }

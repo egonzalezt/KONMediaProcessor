@@ -15,10 +15,12 @@
     <RepositoryUrl>https://github.com/egonzalezt/KONMediaProcessor</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon64px.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\icon64px.png" Pack="true" PackagePath="\" />
     <InternalsVisibleTo Include="KONMediaProcessor.UnitTests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>

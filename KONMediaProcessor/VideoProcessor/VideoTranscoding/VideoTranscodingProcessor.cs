@@ -6,6 +6,7 @@ using FileValidator;
 using Shared;
 using VideoProcessor.VideoInfo;
 using VideoInfo.Entities;
+using KONMediaProcessor.Exceptions;
 
 internal class VideoTranscodingProcessor(IFFmpegExecutor executor, IVideoInfoProcessor videoInfoProcessor, IFileValidator fileValidator) : IVideoTranscodingProcessor
 {

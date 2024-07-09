@@ -13,12 +13,12 @@ internal class FileValidator : IFileValidator
 
     public (string[] inputs, string outputPath) ValidatePaths(string[] inputs, string output, bool overrideFile)
     {
-        string[] validatedInputs = ValidateInputPaths(inputs);
         string validatedOutput = ValidateOutputPath(output, overrideFile);
+        string[] validatedInputs = ValidateInputPaths(inputs, validatedOutput);
         return (validatedInputs, validatedOutput);
     }
 
-    private string[] ValidateInputPaths(string[] inputs)
+    private string[] ValidateInputPaths(string[] inputs, string output)
     {
         if (inputs == null || inputs.Length == 0)
         {
@@ -32,7 +32,12 @@ internal class FileValidator : IFileValidator
                 throw new ArgumentNullException($"Input file path at index {i} is null or empty.");
             }
 
-            inputs[i] = ValidateFileExists(inputs[i]);
+            var parsedInput = ValidateFileExists(inputs[i]);
+            if(parsedInput.Equals(output, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new InputAndOutputFileSameException(parsedInput);
+            }
+            inputs[i] = parsedInput;
         }
 
         return inputs;

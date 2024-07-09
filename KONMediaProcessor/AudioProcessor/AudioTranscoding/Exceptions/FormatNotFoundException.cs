@@ -1,4 +1,6 @@
-﻿namespace KONMediaProcessor.Exceptions;
+﻿namespace KONMediaProcessor.AudioProcessor.AudioTranscoding.Exceptions;
+
+using KONMediaProcessor.Exceptions;
 
 public class FormatNotFoundException : FFmpegException
 {

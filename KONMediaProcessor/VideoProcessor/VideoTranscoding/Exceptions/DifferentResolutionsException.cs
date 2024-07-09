@@ -1,4 +1,6 @@
-﻿namespace KONMediaProcessor.Exceptions;
+﻿namespace KONMediaProcessor.VideoProcessor.VideoTranscoding.Exceptions;
+
+using KONMediaProcessor.Exceptions;
 
 public class DifferentResolutionsException : FFmpegException
 {

@@ -1,8 +1,8 @@
 ﻿namespace KONMediaProcessor.VideoProcessor.VideoTranscoding;
 
 using Shared;
-using Exceptions;
 using VideoInfo.Entities;
+using Exceptions;
 
 /// <summary>
 /// Provides methods for transcoding, modifying, and concatenating video files.
